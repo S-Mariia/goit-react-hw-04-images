@@ -1,48 +1,44 @@
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Component } from 'react';
 import { Overlay, ModalWrap } from './Modal.styled';
 
-export class Modal extends Component {
-  static propTypes = {
-image: PropTypes.shape({
-      largeImageURL: PropTypes.string.isRequired,
-      tags: PropTypes.string.isRequired,
-    }),
-  }
+export const Modal = ({ closeModal, image: {largeImageURL, tags} }) => {  
+  useEffect(() => {
+    const onEscapePress = evt => {
+      if (evt.code !== 'Escape') {
+        return;
+      }
+      console.log('Press');
+      closeModal();
+    };
+    
+    window.addEventListener('keydown', onEscapePress);
 
-    componentDidMount() {
-    document.addEventListener('keydown', this.onEscapePress);
+    return () => {
+      window.removeEventListener('keydown', onEscapePress);
     }
+  }, [closeModal]);
 
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.onEscapePress);
+  const handleClick = evt => {
+    if (evt.target !== evt.currentTarget) {
+      return;
     }
-
-    onEscapePress = (evt) => {
-        if (evt.code !== "Escape") {
-            return;
-        }
-        console.log('Press');
-        this.props.closeModal();
-    }
-
-    handleClick = (evt) => {
-        if (evt.target !== evt.currentTarget) {
-            return;
-        }
-        console.log('Click');
-        this.props.closeModal();
-
+    console.log('Click');
+    closeModal();
   };
-  render() {
-    const { largeImageURL, tags } = this.props.image;
 
-    return (
-      <Overlay onClick={this.handleClick}>
-        <ModalWrap>
-          <img src={largeImageURL} alt={tags} />
-        </ModalWrap>
-      </Overlay>
-    );
-  }
-}
+  return (
+    <Overlay onClick={handleClick}>
+      <ModalWrap>
+        <img src={largeImageURL} alt={tags} />
+      </ModalWrap>
+    </Overlay>
+  );
+};
+
+Modal.propTypes = {
+  image: PropTypes.shape({
+    largeImageURL: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+  }),
+};
